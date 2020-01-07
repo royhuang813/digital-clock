@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ψηφιακό ρολόι</title>
+    <link rel="stylesheet" type="text/css" href="./inspector.css" />
+    <style>
+      html,
+      body,
+      #container {
+        height: 100%;
+        margin: 0;
+        background: #fff;
+      }
+
+      a {
+        color: #07a;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      svg {
+        display: block;
+      }
+
+      #container {
+        margin: 0 16px;
+        display: flex;
+        align-items: center;
+      }
+
+      #container > :first-child {
+        width: 30%;
+      }
+
+      #container > :not(:first-child) {
+        display: none;
+      }
+
+      #links {
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 16px;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      #full-screen {
+        position: absolute;
+        width: 100%;
+        top: 16px;
+      }
+
+      #view-source {
+        position: absolute;
+        width: 100%;
+        bottom: 16px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <div id="links">
+      <div id="full-screen">
+        <a id="full-screen-link" href>Full screen</a>
+      </div>
+      <div id="view-source">
+        <a id="view-source-link" href="https://observablehq.com/@rkaravia/p">View source on Observable</a>
+      </div>
+    </div>
+    <script type="module">
+      import define from "./index.js";
+      import { Runtime, Library, Inspector } from "./runtime.js";
+
+      const runtime = new Runtime();
+      const main = runtime.module(define, Inspector.into(document.getElementById("container")));
+
+      const linksContainer = document.getElementById("links");
+      let linksEnabled;
+
+      document.getElementById("full-screen-link").addEventListener("click", event => {
+        event.preventDefault();
+        if (linksEnabled) {
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          } else {
+            document.body.requestFullscreen();
+          }
+        }
+      });
+      document.getElementById("view-source-link").addEventListener("click", event => {
+        if (!linksEnabled) {
+          event.preventDefault();
+        }
+      });
+
+      let fadeOutTimer;
+      function showLinks() {
+        linksContainer.style.opacity = 1;
+        linksEnabled = true;
+        clearTimeout(fadeOutTimer);
+        fadeOutTimer = setTimeout(() => {
+          linksContainer.style.opacity = 0;
+          linksEnabled = false;
+        }, 10000);
+      }
+      document.addEventListener("click", showLinks);
+      document.addEventListener("keydown", showLinks);
+      document.addEventListener("pointermove", showLinks);
+      showLinks();
+
+      document.addEventListener("fullscreenchange", () => {
+        if (document.fullscreenElement) {
+          document.getElementById("full-screen-link").textContent = "Exit full screen";
+        } else {
+          document.getElementById("full-screen-link").textContent = "Full screen";
+        }
+      });
+    </script>
+    <script>
+      var clicky_site_ids = [101229063];
+    </script>
+    <!-- <script async src="https://static.getclicky.com/js"></script> -->
+  </body>
+</html>
